@@ -1,9 +1,17 @@
-export default function DashboardPage() {
+import { createClient } from "@/lib/db/supabase-server";
+
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const name = user?.user_metadata?.full_name || "there";
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-900">
+        Welcome back, {name}
+      </h1>
       <p className="mt-1 text-sm text-gray-500">
-        Welcome to Signavo. Manage your brand and campaigns.
+        Ready to stay visible this week?
       </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <a

@@ -1,1 +1,1 @@
-export { supabase } from "@/lib/db/supabase-client";
+export { signUp, signIn, signOut } from "./actions";

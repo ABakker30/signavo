@@ -1,8 +1,9 @@
-import { supabaseAdmin } from "@/lib/db/supabase-server";
+import { createAdminClient } from "@/lib/db/supabase-server";
 import type { Campaign } from "@/lib/types";
 
 export async function getCampaigns(accountId: string): Promise<Campaign[]> {
-  const { data, error } = await supabaseAdmin
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
     .from("campaigns")
     .select("*")
     .eq("account_id", accountId)
@@ -13,7 +14,8 @@ export async function getCampaigns(accountId: string): Promise<Campaign[]> {
 }
 
 export async function getCampaign(id: string): Promise<Campaign | null> {
-  const { data, error } = await supabaseAdmin
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
     .from("campaigns")
     .select("*")
     .eq("id", id)
@@ -26,7 +28,8 @@ export async function getCampaign(id: string): Promise<Campaign | null> {
 export async function createCampaign(
   campaign: Partial<Campaign>
 ): Promise<Campaign | null> {
-  const { data, error } = await supabaseAdmin
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
     .from("campaigns")
     .insert(campaign)
     .select()

@@ -1,3 +1,5 @@
+import { SignOutButton } from "@/components/ui/sign-out-button";
+
 export default function DashboardLayout({
   children,
 }: {
@@ -23,6 +25,7 @@ export default function DashboardLayout({
             <a href="/dashboard/support" className="hover:text-gray-900">
               Support
             </a>
+            <SignOutButton />
           </div>
         </div>
       </nav>

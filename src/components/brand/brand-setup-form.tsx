@@ -10,6 +10,7 @@ interface BrandSetupFormProps {
     knownFor?: string;
     tone?: string;
     audienceFocus?: string;
+    headshotUrl?: string;
   };
 }
 
@@ -48,6 +49,39 @@ export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
   const [knownFor, setKnownFor] = useState(initialData?.knownFor || "");
   const [tone, setTone] = useState(initialData?.tone || "");
   const [audienceFocus, setAudienceFocus] = useState(initialData?.audienceFocus || "");
+  const [headshotUrl, setHeadshotUrl] = useState(initialData?.headshotUrl || "");
+  const [uploading, setUploading] = useState(false);
+
+  async function handleHeadshotUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/brand/upload-headshot", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error?.message || "Upload failed");
+        return;
+      }
+
+      setHeadshotUrl(data.data.headshotUrl);
+    } catch {
+      setError("Network error during upload.");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function handleAnalyze() {
     if (!websiteUrl) {
@@ -151,6 +185,41 @@ export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
           Brand profile saved. Redirecting to dashboard...
         </div>
       )}
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Professional Headshot
+        </label>
+        <p className="mt-1 text-xs text-gray-400">
+          Upload a professional photo to include in your campaigns and landing pages.
+        </p>
+        <div className="mt-2 flex items-center gap-4">
+          {headshotUrl ? (
+            <img
+              src={headshotUrl}
+              alt="Headshot"
+              className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+            />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-sm text-gray-400">
+              No photo
+            </div>
+          )}
+          <div>
+            <label className="cursor-pointer rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              {uploading ? "Uploading..." : headshotUrl ? "Change Photo" : "Upload Photo"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleHeadshotUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+            <p className="mt-1 text-xs text-gray-400">JPG, PNG, or WebP. Max 5MB.</p>
+          </div>
+        </div>
+      </div>
 
       <div>
         <label htmlFor="website" className="block text-sm font-medium text-gray-700">

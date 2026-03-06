@@ -29,6 +29,7 @@ export default async function BrandPage() {
           knownFor: brand.known_for || "",
           tone: brand.tone || "",
           audienceFocus: brand.audience_focus || "",
+          headshotUrl: brand.headshot_url || "",
         };
       }
     }

@@ -95,6 +95,7 @@ export interface BrandProfile {
   account_id: string;
   status: BrandStatus;
   website_url: string | null;
+  headshot_url: string | null;
   known_for: KnownFor | null;
   tone: Tone | null;
   audience_focus: AudienceFocus | null;

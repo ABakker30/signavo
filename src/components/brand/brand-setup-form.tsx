@@ -38,14 +38,64 @@ const AUDIENCE_OPTIONS = [
 export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
   const [websiteUrl, setWebsiteUrl] = useState(initialData?.websiteUrl || "");
   const [positioning, setPositioning] = useState(initialData?.positioning || "");
   const [knownFor, setKnownFor] = useState(initialData?.knownFor || "");
   const [tone, setTone] = useState(initialData?.tone || "");
   const [audienceFocus, setAudienceFocus] = useState(initialData?.audienceFocus || "");
+
+  async function handleAnalyze() {
+    if (!websiteUrl) {
+      setError("Enter a website URL to analyze.");
+      return;
+    }
+    setError(null);
+    setAnalysisResult(null);
+    setAnalyzing(true);
+
+    try {
+      const res = await fetch("/api/brand/analyze-website", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ websiteUrl }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error?.message || "Website analysis failed");
+        return;
+      }
+
+      const d = data.data;
+
+      // Auto-populate fields from analysis
+      if (d.positioningSuggestion && !positioning) setPositioning(d.positioningSuggestion);
+      if (d.brandToneHint && !tone) setTone(d.brandToneHint.toLowerCase());
+      if (d.knownForHint && !knownFor) setKnownFor(d.knownForHint);
+      if (d.audienceHint && !audienceFocus) {
+        const hint = d.audienceHint.toLowerCase();
+        if (hint.includes("buyer")) setAudienceFocus("buyers");
+        else if (hint.includes("seller")) setAudienceFocus("sellers");
+        else if (hint.includes("relocation") || hint.includes("military")) setAudienceFocus("military_relocation");
+        else if (hint.includes("invest")) setAudienceFocus("investors");
+      }
+
+      setAnalysisResult(
+        `Analyzed ${d.pagesAnalyzed} page(s). Found: "${d.tagline || d.siteTitle}". ` +
+        `Key phrases: ${(d.keyPhrases || []).slice(0, 3).join(", ")}.`
+      );
+    } catch {
+      setError("Network error during analysis. Please try again.");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,9 +164,24 @@ export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
           className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
           placeholder="https://yoursite.com"
         />
-        <p className="mt-1 text-xs text-gray-400">
-          We&apos;ll analyze your site to match your tone and messaging.
-        </p>
+        <div className="mt-2 flex gap-2">
+          <button
+            type="button"
+            onClick={handleAnalyze}
+            disabled={analyzing || !websiteUrl}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            {analyzing ? "Analyzing..." : "Analyze Website"}
+          </button>
+          {analyzing && (
+            <span className="self-center text-xs text-gray-400">This may take 15-30 seconds</span>
+          )}
+        </div>
+        {analysisResult && (
+          <div className="mt-2 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
+            {analysisResult}
+          </div>
+        )}
       </div>
 
       <div>

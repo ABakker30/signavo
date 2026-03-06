@@ -42,22 +42,52 @@ export async function POST(
     );
   }
 
-  // Stub: AI refinement will be implemented later
-  // For now, just update the timestamp to indicate refinement happened
-  const { error: updateError } = await admin
-    .from("campaigns")
-    .update({ updated_at: new Date().toISOString() })
-    .eq("id", id);
+  const currentSlides = (campaign.slides as Array<{ index: number; headline: string; body: string }>) || [];
 
-  if (updateError) {
+  if (currentSlides.length === 0) {
     return NextResponse.json(
-      { success: false, error: { code: "REFINE_FAILED", message: updateError.message } },
-      { status: 500 }
+      { success: false, error: { code: "NO_DRAFT", message: "Generate a draft first" } },
+      { status: 400 }
     );
   }
 
-  return NextResponse.json({
-    success: true,
-    data: { status: "DRAFT_UPDATED" },
-  });
+  try {
+    const { refineCampaignDraft } = await import("@/lib/ai/refine-draft");
+
+    const refined = await refineCampaignDraft({
+      currentSlides,
+      currentCaption: campaign.caption || "",
+      prompt,
+      brandTone: context.brandProfile?.tone || null,
+      campaignLanguage: campaign.campaign_language || "en",
+    });
+
+    const { error: updateError } = await admin
+      .from("campaigns")
+      .update({
+        slides: refined.slides,
+        caption: refined.caption,
+        draft_caption: refined.caption,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (updateError) {
+      return NextResponse.json(
+        { success: false, error: { code: "REFINE_FAILED", message: updateError.message } },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: { status: "DRAFT_UPDATED" },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AI refinement failed";
+    return NextResponse.json(
+      { success: false, error: { code: "AI_ERROR", message } },
+      { status: 500 }
+    );
+  }
 }

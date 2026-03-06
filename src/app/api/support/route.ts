@@ -21,12 +21,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Stub: AI support will be implemented later
-  return NextResponse.json({
-    success: true,
-    data: {
-      reply: "Thanks for reaching out. Our support assistant is being set up and will be fully available soon. In the meantime, feel free to ask your question and we'll get back to you.",
-      actions: [],
-    },
-  });
+  try {
+    const { chat } = await import("@/lib/ai/chat");
+
+    const result = await chat({
+      message,
+      context: "support",
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        reply: result.reply,
+        actions: [],
+      },
+    });
+  } catch {
+    return NextResponse.json({
+      success: true,
+      data: {
+        reply: "I'm having trouble connecting right now. Please try again in a moment.",
+        actions: [],
+      },
+    });
+  }
 }

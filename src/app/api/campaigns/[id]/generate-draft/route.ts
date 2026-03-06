@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAccountContext } from "@/lib/auth/get-session";
 import { createAdminClient } from "@/lib/db/supabase-server";
+import { generateCampaignDraft } from "@/lib/ai/generate-draft";
 
 export async function POST(
   _request: NextRequest,
@@ -32,37 +33,44 @@ export async function POST(
     );
   }
 
-  // Stub: generate placeholder slides
-  // Will be replaced with AI-powered generation
-  const slides = [
-    { index: 1, headline: `${campaign.title || "Market Update"}`, body: "Here's what's happening in Hampton Roads real estate this week.", image_url: null },
-    { index: 2, headline: "Market Activity", body: "Inventory remains active across key neighborhoods in the Hampton Roads area.", image_url: null },
-    { index: 3, headline: "Key Trends", body: "Buyer interest continues to grow in Virginia Beach and Norfolk communities.", image_url: null },
-    { index: 4, headline: "What This Means", body: "Whether you're buying or selling, staying informed gives you an advantage.", image_url: null },
-    { index: 5, headline: "Stay Connected", body: "Follow for weekly updates on the Hampton Roads real estate market.", image_url: null },
-  ];
+  try {
+    const draft = await generateCampaignDraft({
+      title: campaign.title || "Market Update",
+      inputText: campaign.input_data || campaign.raw_input_text || campaign.title || "General market update",
+      brandTone: context.brandProfile?.tone || null,
+      audienceFocus: context.brandProfile?.audience_focus || null,
+      positioning: context.brandProfile?.positioning || null,
+      knownFor: context.brandProfile?.known_for || null,
+      campaignLanguage: campaign.campaign_language || "en",
+    });
 
-  const caption = `A quick look at what's happening in the Hampton Roads real estate market. Stay informed, stay visible. #HamptonRoads #RealEstate #MarketUpdate`;
+    const { error: updateError } = await admin
+      .from("campaigns")
+      .update({
+        slides: draft.slides,
+        caption: draft.caption,
+        draft_caption: draft.caption,
+        status: "draft",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
 
-  const { error: updateError } = await admin
-    .from("campaigns")
-    .update({
-      slides,
-      caption,
-      status: "draft",
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+    if (updateError) {
+      return NextResponse.json(
+        { success: false, error: { code: "GENERATION_FAILED", message: updateError.message } },
+        { status: 500 }
+      );
+    }
 
-  if (updateError) {
+    return NextResponse.json({
+      success: true,
+      data: { status: "DRAFT_READY" },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AI generation failed";
     return NextResponse.json(
-      { success: false, error: { code: "GENERATION_FAILED", message: updateError.message } },
+      { success: false, error: { code: "AI_ERROR", message } },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({
-    success: true,
-    data: { status: "DRAFT_READY" },
-  });
 }

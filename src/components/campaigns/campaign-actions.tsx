@@ -6,13 +6,39 @@ import { useRouter } from "next/navigation";
 interface CampaignActionsProps {
   campaignId: string;
   status: string;
+  renderedSlides?: string[];
 }
 
-export function CampaignActions({ campaignId, status }: CampaignActionsProps) {
+export function CampaignActions({ campaignId, status, renderedSlides }: CampaignActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [rendering, setRendering] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refinePrompt, setRefinePrompt] = useState("");
+
+  async function handleRender() {
+    setRendering(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/campaigns/${campaignId}/render`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error?.message || "Rendering failed");
+        return;
+      }
+
+      router.refresh();
+    } catch {
+      setError("Network error during rendering");
+    } finally {
+      setRendering(false);
+    }
+  }
 
   async function handleRefine() {
     if (!refinePrompt.trim()) return;
@@ -67,12 +93,40 @@ export function CampaignActions({ campaignId, status }: CampaignActionsProps) {
     }
   }
 
+  const slideImages = renderedSlides || [];
+
   if (status === "published") {
     return (
-      <div className="mt-8 rounded-xl border border-green-200 bg-green-50 p-5">
-        <p className="text-sm font-medium text-green-800">
-          This campaign is published and live.
-        </p>
+      <div className="mt-8 space-y-6">
+        <div className="rounded-xl border border-green-200 bg-green-50 p-5">
+          <p className="text-sm font-medium text-green-800">
+            This campaign is published and live.
+          </p>
+        </div>
+        {slideImages.length > 0 && (
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Rendered Slides</h2>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {slideImages.map((url, i) => (
+                <div key={i} className="group relative">
+                  <img
+                    src={url}
+                    alt={`Slide ${i + 1}`}
+                    className="w-full rounded-lg border border-gray-200 shadow-sm"
+                  />
+                  <a
+                    href={url}
+                    download={`slide-${i + 1}.png`}
+                    target="_blank"
+                    className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    Download
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -107,6 +161,39 @@ export function CampaignActions({ campaignId, status }: CampaignActionsProps) {
           </button>
         </div>
       </div>
+
+      <button
+        onClick={handleRender}
+        disabled={rendering}
+        className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+      >
+        {rendering ? "Rendering slides... (15-30s)" : slideImages.length > 0 ? "Re-render Slides" : "Render Branded Slides"}
+      </button>
+
+      {slideImages.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">Rendered Slides</h2>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            {slideImages.map((url, i) => (
+              <div key={i} className="group relative">
+                <img
+                  src={url}
+                  alt={`Slide ${i + 1}`}
+                  className="w-full rounded-lg border border-gray-200 shadow-sm"
+                />
+                <a
+                  href={url}
+                  download={`slide-${i + 1}.png`}
+                  target="_blank"
+                  className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  Download
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <button
         onClick={handlePublish}

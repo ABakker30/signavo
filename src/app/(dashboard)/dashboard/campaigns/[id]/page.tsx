@@ -95,7 +95,11 @@ export default async function CampaignDetailPage({
         </div>
       )}
 
-      <CampaignActions campaignId={id} status={campaign.status} />
+      <CampaignActions
+        campaignId={id}
+        status={campaign.status}
+        renderedSlides={(campaign.rendered_slides as string[]) || []}
+      />
     </div>
   );
 }

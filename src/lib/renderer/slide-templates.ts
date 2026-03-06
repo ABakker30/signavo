@@ -10,6 +10,7 @@ interface BrandData {
   tagline: string;
   headshotUrl: string | null;
   tone: string;
+  backgroundImageUrl?: string | null;
 }
 
 interface TemplateColors {
@@ -74,11 +75,59 @@ function dots(current: number, total: number, accent: string, secondary: string)
   ).join("");
 }
 
+function getOverlay(index: number, total: number, tone: string): string {
+  const isFirst = index === 1;
+  const isLast = index === total;
+
+  if (isFirst) {
+    // Strong overlay on first slide for title impact
+    return tone === "premium"
+      ? "linear-gradient(135deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.7) 60%, rgba(15,23,42,0.5) 100%)"
+      : "linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.35) 100%)";
+  }
+  if (isLast) {
+    // Strong overlay on CTA slide
+    return tone === "premium"
+      ? "linear-gradient(180deg, rgba(15,23,42,0.6) 0%, rgba(15,23,42,0.9) 100%)"
+      : "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.8) 100%)";
+  }
+  // Middle slides: alternate overlay angles for visual variety
+  const overlays = [
+    "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.65) 100%)",
+    "linear-gradient(135deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 100%)",
+    "linear-gradient(225deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 100%)",
+  ];
+  return overlays[(index - 2) % overlays.length];
+}
+
 export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
   const c = getColors(brand.tone);
   const isFirst = slide.index === 1;
   const isLast = slide.index === slide.totalSlides;
   const showHeadshot = (isFirst || isLast) && brand.headshotUrl;
+  const hasAiBg = !!brand.backgroundImageUrl;
+
+  // When using AI background, force white text for readability on dark overlay
+  const textColor = hasAiBg ? "#ffffff" : c.text;
+  const textSecondary = hasAiBg ? "rgba(255,255,255,0.8)" : c.textSecondary;
+  const accentColor = hasAiBg ? c.accent : c.accent;
+
+  const bgStyle = hasAiBg
+    ? `background: url('${brand.backgroundImageUrl}') center/cover no-repeat;`
+    : `background: ${c.bgGradient};`;
+
+  const overlayHtml = hasAiBg
+    ? `<div class="bg-overlay"></div>`
+    : "";
+
+  const overlayStyle = hasAiBg
+    ? `.bg-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: ${getOverlay(slide.index, slide.totalSlides, brand.tone)};
+        z-index: 1;
+      }`
+    : "";
 
   return `<!DOCTYPE html>
 <html>
@@ -91,12 +140,14 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
     width: 1080px;
     height: 1080px;
     font-family: 'Inter', -apple-system, sans-serif;
-    background: ${c.bgGradient};
-    color: ${c.text};
+    ${bgStyle}
+    color: ${textColor};
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
   }
+  ${overlayStyle}
   .container {
     flex: 1;
     display: flex;
@@ -104,6 +155,7 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
     justify-content: center;
     padding: 80px 72px;
     position: relative;
+    z-index: 2;
   }
   .top-bar {
     position: absolute;
@@ -111,7 +163,8 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
     left: 0;
     right: 0;
     height: 6px;
-    background: ${c.accent};
+    background: ${accentColor};
+    z-index: 3;
   }
   .brand-header {
     position: absolute;
@@ -125,17 +178,19 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
   .brand-name {
     font-size: 18px;
     font-weight: 600;
-    color: ${c.textSecondary};
+    color: ${textSecondary};
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    ${hasAiBg ? "text-shadow: 0 1px 3px rgba(0,0,0,0.5);" : ""}
   }
   .slide-number {
     font-size: 16px;
     font-weight: 700;
-    color: ${c.accent};
-    background: ${c.headlineBg};
+    color: ${hasAiBg ? "#ffffff" : accentColor};
+    background: ${hasAiBg ? "rgba(255,255,255,0.15)" : c.headlineBg};
     padding: 6px 16px;
     border-radius: 20px;
+    ${hasAiBg ? "backdrop-filter: blur(8px);" : ""}
   }
   .content {
     margin-top: 40px;
@@ -144,19 +199,18 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
     font-size: 52px;
     font-weight: 800;
     line-height: 1.15;
-    color: ${c.text};
+    color: ${textColor};
     margin-bottom: 32px;
     max-width: 900px;
-  }
-  .headline-accent {
-    color: ${c.accent};
+    ${hasAiBg ? "text-shadow: 0 2px 8px rgba(0,0,0,0.4);" : ""}
   }
   .body-text {
     font-size: 28px;
     font-weight: 400;
     line-height: 1.55;
-    color: ${c.textSecondary};
+    color: ${textSecondary};
     max-width: 840px;
+    ${hasAiBg ? "text-shadow: 0 1px 4px rgba(0,0,0,0.3);" : ""}
   }
   .headshot-section {
     display: flex;
@@ -169,7 +223,8 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
     height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid ${c.accent};
+    border: 3px solid ${accentColor};
+    ${hasAiBg ? "box-shadow: 0 4px 12px rgba(0,0,0,0.4);" : ""}
   }
   .headshot-info {
     display: flex;
@@ -178,11 +233,12 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
   .headshot-name {
     font-size: 22px;
     font-weight: 700;
-    color: ${c.text};
+    color: ${textColor};
+    ${hasAiBg ? "text-shadow: 0 1px 3px rgba(0,0,0,0.4);" : ""}
   }
   .headshot-tagline {
     font-size: 16px;
-    color: ${c.textSecondary};
+    color: ${textSecondary};
     margin-top: 4px;
   }
   .footer {
@@ -193,6 +249,7 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    z-index: 2;
   }
   .dots {
     display: flex;
@@ -200,22 +257,24 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
   }
   .tagline-footer {
     font-size: 14px;
-    color: ${c.textSecondary};
+    color: ${textSecondary};
     font-style: italic;
   }
   .cta-badge {
     display: inline-block;
-    background: ${c.accent};
+    background: ${accentColor};
     color: ${c.accentText};
     padding: 14px 36px;
     border-radius: 12px;
     font-size: 24px;
     font-weight: 700;
     margin-top: 36px;
+    ${hasAiBg ? "box-shadow: 0 4px 16px rgba(0,0,0,0.3);" : ""}
   }
 </style>
 </head>
 <body>
+  ${overlayHtml}
   <div class="top-bar"></div>
   <div class="container">
     <div class="brand-header">
@@ -237,7 +296,7 @@ export function renderSlideHtml(slide: SlideData, brand: BrandData): string {
       ` : ""}
     </div>
     <div class="footer">
-      <div class="dots">${dots(slide.index, slide.totalSlides, c.accent, c.textSecondary + "40")}</div>
+      <div class="dots">${dots(slide.index, slide.totalSlides, accentColor, hasAiBg ? "rgba(255,255,255,0.3)" : c.textSecondary + "40")}</div>
       ${!showHeadshot && brand.tagline ? `<span class="tagline-footer">${brand.tagline}</span>` : ""}
     </div>
   </div>

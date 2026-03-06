@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAccountContext } from "@/lib/auth/get-session";
 import { createAdminClient } from "@/lib/db/supabase-server";
 import { renderSlides } from "@/lib/renderer";
+import { generateImagePrompt } from "@/lib/ai/generate-image-prompt";
+import { generateCampaignImage } from "@/lib/ai/generate-image";
 
 export async function POST(
   _request: NextRequest,
@@ -50,22 +52,53 @@ export async function POST(
     .eq("account_id", context.account.id)
     .single();
 
-  // Fetch account for business name and tagline
+  // Fetch account for business name, tagline, and industry
   const { data: account } = await admin
     .from("accounts")
-    .select("business_name, tagline")
+    .select("business_name, tagline, industry_type, region")
     .eq("id", context.account.id)
     .single();
 
+  const brandTone = brand?.tone || "professional";
+
   try {
+    // Pass 1: Generate DALL-E prompt from campaign content + brand context
+    const imagePrompt = await generateImagePrompt({
+      topic: campaign.title || "market update",
+      slides: slides.map((s) => ({ headline: s.headline, body: s.body })),
+      brandTone,
+      industry: account?.industry_type || "REAL_ESTATE",
+      region: account?.region || undefined,
+    });
+
+    // Pass 2: Generate background image with DALL-E 3
+    const imageBuffer = await generateCampaignImage(imagePrompt);
+
+    // Upload AI background to Supabase Storage
+    const bgPath = `${context.account.id}/${id}/ai-background.png`;
+    await admin.storage
+      .from("campaign-slides")
+      .upload(bgPath, imageBuffer, {
+        contentType: "image/png",
+        upsert: true,
+      });
+
+    const { data: bgUrlData } = admin.storage
+      .from("campaign-slides")
+      .getPublicUrl(bgPath);
+
+    const backgroundImageUrl = bgUrlData.publicUrl;
+
+    // Pass 3: Render slides with AI background + brand overlay
     const rendered = await renderSlides(slides, {
       businessName: account?.business_name || "Signavo",
       tagline: account?.tagline || "",
       headshotUrl: brand?.headshot_url || null,
-      tone: brand?.tone || "professional",
+      tone: brandTone,
+      backgroundImageUrl,
     });
 
-    // Upload each slide to Supabase Storage
+    // Upload each rendered slide to Supabase Storage
     const imageUrls: string[] = [];
 
     for (const slide of rendered) {
@@ -99,6 +132,7 @@ export async function POST(
       data: {
         slides: imageUrls,
         count: imageUrls.length,
+        backgroundPrompt: imagePrompt,
       },
     });
   } catch (err) {

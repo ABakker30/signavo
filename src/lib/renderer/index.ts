@@ -12,6 +12,7 @@ interface BrandInfo {
   tagline: string;
   headshotUrl: string | null;
   tone: string;
+  backgroundImageUrl?: string | null;
 }
 
 interface RenderedSlide {

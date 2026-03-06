@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { websiteUrl, positioning, tone, audienceFocus, assistantIntro } = body;
+  const { websiteUrl, positioning, knownFor, tone, audienceFocus, assistantIntro } = body;
 
   if (!tone || !audienceFocus) {
     return NextResponse.json(
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     .update({
       website_url: websiteUrl || null,
       positioning: positioning || null,
+      known_for: knownFor || null,
       tone,
       audience_focus: audienceFocus,
       assistant_intro: assistantIntro || null,

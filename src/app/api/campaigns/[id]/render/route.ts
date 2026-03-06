@@ -62,6 +62,14 @@ export async function POST(
   const brandTone = brand?.tone || "professional";
 
   try {
+    // Try to extract imageMood from the enriched input data
+    let imageMood: string | undefined;
+    const inputData = campaign.input_data || "";
+    const moodMatch = inputData.match(/Image mood:\s*(.+)/i);
+    if (moodMatch) {
+      imageMood = moodMatch[1].trim();
+    }
+
     // Pass 1: Generate DALL-E prompt from campaign content + brand context
     const imagePrompt = await generateImagePrompt({
       topic: campaign.title || "market update",
@@ -69,6 +77,7 @@ export async function POST(
       brandTone,
       industry: account?.industry_type || "REAL_ESTATE",
       region: account?.region || undefined,
+      imageMood,
     });
 
     // Pass 2: Generate background image with DALL-E 3

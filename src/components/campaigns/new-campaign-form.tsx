@@ -9,12 +9,24 @@ interface ExtractedSlide {
   body: string;
 }
 
+interface EventDetails {
+  isEvent: boolean;
+  venue: string | null;
+  address: string | null;
+  date: string | null;
+  time: string | null;
+  eventType: string | null;
+  ticketInfo: string | null;
+}
+
 interface ExtractedData {
+  contentType: string;
   topic: string;
   keyMessage: string;
   targetAudience: string;
   keyPoints: string[];
   suggestedTitle: string;
+  eventDetails: EventDetails;
   suggestedSlides: ExtractedSlide[];
   imageMood: string;
 }
@@ -32,12 +44,21 @@ export function NewCampaignForm() {
 
   // Step 2: Extracted data (editable)
   const [extracted, setExtracted] = useState<ExtractedData | null>(null);
+  const [contentType, setContentType] = useState("");
   const [title, setTitle] = useState("");
   const [topic, setTopic] = useState("");
   const [keyMessage, setKeyMessage] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [slides, setSlides] = useState<ExtractedSlide[]>([]);
   const [imageMood, setImageMood] = useState("");
+
+  // Event details
+  const [eventVenue, setEventVenue] = useState("");
+  const [eventAddress, setEventAddress] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [eventType, setEventType] = useState("");
+  const [ticketInfo, setTicketInfo] = useState("");
 
   async function handleExtract() {
     setError(null);
@@ -73,12 +94,23 @@ export function NewCampaignForm() {
 
       const ext = data.data as ExtractedData;
       setExtracted(ext);
+      setContentType(ext.contentType || "other");
       setTitle(ext.suggestedTitle);
       setTopic(ext.topic);
       setKeyMessage(ext.keyMessage);
       setTargetAudience(ext.targetAudience);
       setSlides(ext.suggestedSlides);
       setImageMood(ext.imageMood);
+
+      // Populate event details if present
+      if (ext.eventDetails?.isEvent) {
+        setEventVenue(ext.eventDetails.venue || "");
+        setEventAddress(ext.eventDetails.address || "");
+        setEventDate(ext.eventDetails.date || "");
+        setEventTime(ext.eventDetails.time || "");
+        setEventType(ext.eventDetails.eventType || "");
+        setTicketInfo(ext.eventDetails.ticketInfo || "");
+      }
       setStep("review");
     } catch {
       setError("Network error. Please try again.");
@@ -126,11 +158,26 @@ export function NewCampaignForm() {
 
     try {
       // Build enriched input text from the refined extraction
+      const eventBlock = eventVenue
+        ? [
+            "",
+            "Event details:",
+            `Content type: ${contentType}`,
+            eventVenue ? `Venue: ${eventVenue}` : "",
+            eventAddress ? `Address: ${eventAddress}` : "",
+            eventDate ? `Date: ${eventDate}` : "",
+            eventTime ? `Time: ${eventTime}` : "",
+            eventType ? `Event type: ${eventType}` : "",
+            ticketInfo ? `Entry/tickets: ${ticketInfo}` : "",
+          ].filter(Boolean).join("\n")
+        : "";
+
       const enrichedInput = [
         `Topic: ${topic}`,
         `Key message: ${keyMessage}`,
         `Target audience: ${targetAudience}`,
         `Image mood: ${imageMood}`,
+        eventBlock,
         "",
         "Suggested slides:",
         ...slides.map(
@@ -267,8 +314,90 @@ export function NewCampaignForm() {
       )}
 
       <div className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
-        Content extracted! Review and refine before generating.
+        <div className="flex items-center gap-2">
+          <span>Content extracted!</span>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            contentType === "event"
+              ? "bg-purple-100 text-purple-700"
+              : contentType === "listing"
+              ? "bg-blue-100 text-blue-700"
+              : contentType === "promotion"
+              ? "bg-amber-100 text-amber-700"
+              : "bg-gray-100 text-gray-700"
+          }`}>
+            {contentType}
+          </span>
+        </div>
+        <p className="mt-0.5 text-xs text-green-600">Review and refine before generating.</p>
       </div>
+
+      {(contentType === "event" || eventVenue) && (
+        <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-purple-900">Event Details</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-purple-700">Venue</label>
+              <input
+                type="text"
+                value={eventVenue}
+                onChange={(e) => setEventVenue(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-purple-200 bg-white px-3 py-1.5 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="Venue name"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-purple-700">Event Type</label>
+              <input
+                type="text"
+                value={eventType}
+                onChange={(e) => setEventType(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-purple-200 bg-white px-3 py-1.5 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="celebration, open house, etc."
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-purple-700">Address</label>
+              <input
+                type="text"
+                value={eventAddress}
+                onChange={(e) => setEventAddress(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-purple-200 bg-white px-3 py-1.5 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="Full address"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-purple-700">Date</label>
+              <input
+                type="text"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-purple-200 bg-white px-3 py-1.5 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="Friday, March 7, 2026"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-purple-700">Time</label>
+              <input
+                type="text"
+                value={eventTime}
+                onChange={(e) => setEventTime(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-purple-200 bg-white px-3 py-1.5 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="7:00 PM - 11:00 PM"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-purple-700">Entry / Tickets</label>
+              <input
+                type="text"
+                value={ticketInfo}
+                onChange={(e) => setTicketInfo(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-purple-200 bg-white px-3 py-1.5 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="Free entry, tickets at door, etc."
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-gray-700">Campaign Title</label>

@@ -13,10 +13,14 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { businessName, websiteUrl } = body;
+  const { businessName, city, region, postalCode, websiteUrl } = body;
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
-  if (businessName) updates.business_name = businessName;
+  if (businessName !== undefined) updates.business_name = businessName;
+  if (city !== undefined) updates.city = city;
+  if (region !== undefined) updates.region = region;
+  if (postalCode !== undefined) updates.postal_code = postalCode;
+  if (websiteUrl !== undefined) updates.website_url = websiteUrl;
 
   const admin = createAdminClient();
   const { error } = await admin

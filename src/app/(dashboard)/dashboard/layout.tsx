@@ -25,6 +25,9 @@ export default function DashboardLayout({
             <a href="/dashboard/support" className="hover:text-gray-900">
               Support
             </a>
+            <a href="/dashboard/settings" className="hover:text-gray-900">
+              Settings
+            </a>
             <SignOutButton />
           </div>
         </div>

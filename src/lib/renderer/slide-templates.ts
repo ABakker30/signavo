@@ -78,26 +78,20 @@ function dots(current: number, total: number, accent: string, secondary: string)
 function getOverlay(index: number, total: number, tone: string): string {
   const isFirst = index === 1;
   const isLast = index === total;
+  const dark = tone === "premium" ? "15,23,42" : "0,0,0";
 
   if (isFirst) {
-    // Moderate overlay on first slide — keep image visible with text contrast at bottom
-    return tone === "premium"
-      ? "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.55) 100%)"
-      : "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%)";
+    // Vivid top, strong lower half for title + headshot
+    return `linear-gradient(180deg, rgba(${dark},0.05) 0%, rgba(${dark},0.15) 30%, rgba(${dark},0.55) 55%, rgba(${dark},0.75) 100%)`;
   }
   if (isLast) {
-    // Bottom-heavy overlay for CTA readability
-    return tone === "premium"
-      ? "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.6) 100%)"
-      : "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)";
+    // Strong bottom for CTA readability
+    return `linear-gradient(180deg, rgba(${dark},0.05) 0%, rgba(${dark},0.2) 35%, rgba(${dark},0.6) 55%, rgba(${dark},0.8) 100%)`;
   }
-  // Middle slides: light overlays with varying angles for visual variety
-  const overlays = [
-    "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%)",
-    "linear-gradient(135deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 100%)",
-    "linear-gradient(225deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%)",
-  ];
-  return overlays[(index - 2) % overlays.length];
+  // Middle slides: vivid top, readable bottom
+  const angles = [180, 170, 190];
+  const angle = angles[(index - 2) % angles.length];
+  return `linear-gradient(${angle}deg, rgba(${dark},0.05) 0%, rgba(${dark},0.15) 30%, rgba(${dark},0.5) 55%, rgba(${dark},0.7) 100%)`;
 }
 
 export function renderSlideHtml(slide: SlideData, brand: BrandData): string {

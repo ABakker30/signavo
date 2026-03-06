@@ -25,10 +25,19 @@ export default async function SettingsPage() {
           fullName: user.user_metadata?.full_name || "",
           email: user.email || "",
           businessName: account?.business_name || "",
+          industryType: account?.industry_type || "REAL_ESTATE",
+          streetAddress: account?.street_address || "",
+          addressLine2: account?.address_line_2 || "",
           city: account?.city || "",
           region: account?.region || "",
           postalCode: account?.postal_code || "",
+          country: account?.country || "US",
           websiteUrl: account?.website_url || "",
+          businessPhone: account?.business_phone || "",
+          businessEmail: account?.business_email || "",
+          licenseNumber: account?.license_number || "",
+          yearsInBusiness: account?.years_in_business?.toString() || "",
+          tagline: account?.tagline || "",
         }}
       />
     </div>

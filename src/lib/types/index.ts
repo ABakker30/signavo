@@ -35,7 +35,15 @@ export interface Account {
   city: string | null;
   region: string | null;
   postal_code: string | null;
+  street_address: string | null;
+  address_line_2: string | null;
+  country: string;
   website_url: string | null;
+  business_phone: string | null;
+  business_email: string | null;
+  license_number: string | null;
+  years_in_business: number | null;
+  tagline: string | null;
   country_code: string;
   ui_language: string;
   market_region: string | null;

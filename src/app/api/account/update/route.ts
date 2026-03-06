@@ -13,14 +13,29 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { businessName, city, region, postalCode, websiteUrl } = body;
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
-  if (businessName !== undefined) updates.business_name = businessName;
-  if (city !== undefined) updates.city = city;
-  if (region !== undefined) updates.region = region;
-  if (postalCode !== undefined) updates.postal_code = postalCode;
-  if (websiteUrl !== undefined) updates.website_url = websiteUrl;
+
+  const fieldMap: Record<string, string> = {
+    businessName: "business_name",
+    industryType: "industry_type",
+    streetAddress: "street_address",
+    addressLine2: "address_line_2",
+    city: "city",
+    region: "region",
+    postalCode: "postal_code",
+    country: "country",
+    websiteUrl: "website_url",
+    businessPhone: "business_phone",
+    businessEmail: "business_email",
+    licenseNumber: "license_number",
+    yearsInBusiness: "years_in_business",
+    tagline: "tagline",
+  };
+
+  for (const [key, col] of Object.entries(fieldMap)) {
+    if (body[key] !== undefined) updates[col] = body[key];
+  }
 
   const admin = createAdminClient();
   const { error } = await admin

@@ -42,6 +42,9 @@ export async function getAccountContext() {
       businessName: account.business_name,
       location: account.location,
       brandStatus: brandProfile?.status || "not_started",
+      industryType: account.industry_type || "REAL_ESTATE",
+      region: account.region || null,
+      tagline: account.tagline || "",
     },
     brandProfile,
   };

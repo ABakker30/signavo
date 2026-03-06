@@ -44,18 +44,18 @@ export default async function SuggestionsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Suggestions</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Suggestions</h1>
       <p className="mt-1 text-sm text-gray-500">
         Content ideas and campaign suggestions.
       </p>
-      <div className="mt-8 space-y-4">
+      <div className="mt-6 sm:mt-8 space-y-4">
         {suggestions.length === 0 ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+          <div className="rounded-xl border border-gray-200 bg-white p-8 sm:p-12 text-center">
             <p className="text-sm text-gray-400">No suggestions right now. Check back soon.</p>
           </div>
         ) : (
           suggestions.map((s) => (
-            <div key={s.id} className="rounded-xl border border-gray-200 bg-white p-6">
+            <div key={s.id} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6">
               <div className="flex items-center gap-2">
                 <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                   s.type === "WEEKLY"

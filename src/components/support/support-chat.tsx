@@ -60,40 +60,40 @@ export function SupportChat() {
   }
 
   return (
-    <div className="mt-8 rounded-xl border border-gray-200 bg-white">
-      <div className="h-80 overflow-y-auto p-6 space-y-4">
+    <div className="mt-6 sm:mt-8 rounded-xl border border-gray-200 bg-white">
+      <div className="h-[60vh] sm:h-80 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`rounded-lg px-4 py-3 text-sm ${
+            className={`rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm ${
               msg.role === "assistant"
                 ? "bg-gray-50 text-gray-600"
-                : "bg-gray-900 text-white ml-8"
+                : "bg-gray-900 text-white ml-4 sm:ml-8"
             }`}
           >
             {msg.content}
           </div>
         ))}
         {sending && (
-          <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-400">
+          <div className="rounded-lg bg-gray-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-gray-400">
             Thinking...
           </div>
         )}
       </div>
-      <div className="border-t border-gray-200 p-4 flex gap-2">
+      <div className="border-t border-gray-200 p-3 sm:p-4 flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask a question..."
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+          className="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
         />
         <button
           type="button"
           onClick={handleSend}
           disabled={sending || !input.trim()}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="shrink-0 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Send
         </button>

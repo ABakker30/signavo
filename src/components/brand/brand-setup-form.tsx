@@ -173,7 +173,7 @@ export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+    <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-6">
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -198,15 +198,15 @@ export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
             <img
               src={headshotUrl}
               alt="Headshot"
-              className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+              className="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border-2 border-gray-200"
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-sm text-gray-400">
+            <div className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs sm:text-sm text-gray-400">
               No photo
             </div>
           )}
           <div>
-            <label className="cursor-pointer rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <label className="cursor-pointer inline-block rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               {uploading ? "Uploading..." : headshotUrl ? "Change Photo" : "Upload Photo"}
               <input
                 type="file"
@@ -233,7 +233,7 @@ export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
           className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
           placeholder="https://yoursite.com"
         />
-        <div className="mt-2 flex gap-2">
+        <div className="mt-2 flex flex-col sm:flex-row gap-2">
           <button
             type="button"
             onClick={handleAnalyze}
@@ -243,7 +243,7 @@ export function BrandSetupForm({ initialData }: BrandSetupFormProps) {
             {analyzing ? "Analyzing..." : "Analyze Website"}
           </button>
           {analyzing && (
-            <span className="self-center text-xs text-gray-400">This may take 15-30 seconds</span>
+            <span className="self-start sm:self-center text-xs text-gray-400">This may take 15-30 seconds</span>
           )}
         </div>
         {analysisResult && (

@@ -108,7 +108,7 @@ export function AccountSettingsForm({ initialData }: AccountSettingsFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+    <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -279,7 +279,7 @@ export function AccountSettingsForm({ initialData }: AccountSettingsFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="city" className="block text-sm font-medium text-gray-700">
                 City
@@ -308,7 +308,7 @@ export function AccountSettingsForm({ initialData }: AccountSettingsFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700">
                 Postal Code

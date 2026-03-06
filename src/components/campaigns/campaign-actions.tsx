@@ -130,7 +130,7 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
         {slideImages.length > 0 && (
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Rendered Slides</h2>
-            <div className="mt-4 grid grid-cols-2 gap-4">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {slideImages.map((url, i) => (
                 <div key={i} className="group relative">
                   <img
@@ -142,7 +142,7 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
                     href={url}
                     download={`slide-${i + 1}.png`}
                     target="_blank"
-                    className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-medium text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                   >
                     Download
                   </a>
@@ -156,19 +156,19 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
   }
 
   return (
-    <div className="mt-8 space-y-4">
+    <div className="mt-6 sm:mt-8 space-y-4">
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
         <h3 className="text-sm font-medium text-gray-900">Refine Draft</h3>
         <p className="mt-1 text-xs text-gray-400">
           Tell us how to adjust the draft.
         </p>
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={refinePrompt}
@@ -197,7 +197,7 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
       {slideImages.length > 0 && (
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Rendered Slides</h2>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {slideImages.map((url, i) => (
               <div key={i} className="group relative">
                 <img
@@ -209,7 +209,7 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
                   href={url}
                   download={`slide-${i + 1}.png`}
                   target="_blank"
-                  className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-medium text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                 >
                   Download
                 </a>

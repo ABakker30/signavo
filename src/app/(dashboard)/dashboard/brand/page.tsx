@@ -37,7 +37,7 @@ export default async function BrandPage() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="text-2xl font-bold text-gray-900">Brand Setup</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Brand Setup</h1>
       <p className="mt-1 text-sm text-gray-500">
         Define how you want to be known in your community.
       </p>

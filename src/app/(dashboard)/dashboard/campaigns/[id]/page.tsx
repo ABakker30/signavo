@@ -32,16 +32,16 @@ export default async function CampaignDetailPage({
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             {campaign.title || "Untitled Campaign"}
           </h1>
           <p className="mt-1 text-sm text-gray-500">
             Created {new Date(campaign.created_at).toLocaleDateString()}
           </p>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-medium ${
+        <span className={`self-start rounded-full px-3 py-1 text-xs font-medium ${
           campaign.status === "published"
             ? "bg-green-100 text-green-700"
             : campaign.status === "draft"

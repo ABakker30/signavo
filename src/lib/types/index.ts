@@ -36,7 +36,48 @@ export interface Account {
   region: string | null;
   postal_code: string | null;
   website_url: string | null;
+  country_code: string;
+  ui_language: string;
+  market_region: string | null;
+  vertical_config_key: string;
   status: "ACTIVE" | "SUSPENDED";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VerticalConfigOption {
+  value: string;
+  label: string;
+}
+
+export interface SuggestionTemplate {
+  type: SuggestionType;
+  title: string;
+  description: string;
+}
+
+export interface CtaTemplate {
+  label: string;
+  context: string;
+}
+
+export interface VerticalConfig {
+  id: string;
+  key: string;
+  label: string;
+  industry_type: string;
+  default_region: string | null;
+  default_country_code: string;
+  default_language: string;
+  known_for_options: VerticalConfigOption[];
+  tone_options: VerticalConfigOption[];
+  audience_options: VerticalConfigOption[];
+  suggestion_templates: SuggestionTemplate[];
+  cta_templates: CtaTemplate[];
+  campaign_templates: Record<string, unknown>[];
+  terminology: Record<string, string>;
+  example_outputs: Record<string, unknown>;
+  active: boolean;
   created_at: string;
   updated_at: string;
 }

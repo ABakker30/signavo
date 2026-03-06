@@ -80,22 +80,22 @@ function getOverlay(index: number, total: number, tone: string): string {
   const isLast = index === total;
 
   if (isFirst) {
-    // Strong overlay on first slide for title impact
+    // Moderate overlay on first slide — keep image visible with text contrast at bottom
     return tone === "premium"
-      ? "linear-gradient(135deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.7) 60%, rgba(15,23,42,0.5) 100%)"
-      : "linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.35) 100%)";
+      ? "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.55) 100%)"
+      : "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%)";
   }
   if (isLast) {
-    // Strong overlay on CTA slide
+    // Bottom-heavy overlay for CTA readability
     return tone === "premium"
-      ? "linear-gradient(180deg, rgba(15,23,42,0.6) 0%, rgba(15,23,42,0.9) 100%)"
-      : "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.8) 100%)";
+      ? "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.6) 100%)"
+      : "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)";
   }
-  // Middle slides: alternate overlay angles for visual variety
+  // Middle slides: light overlays with varying angles for visual variety
   const overlays = [
-    "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.65) 100%)",
-    "linear-gradient(135deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 100%)",
-    "linear-gradient(225deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 100%)",
+    "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%)",
+    "linear-gradient(135deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 100%)",
+    "linear-gradient(225deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%)",
   ];
   return overlays[(index - 2) % overlays.length];
 }

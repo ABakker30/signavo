@@ -22,16 +22,18 @@ Rules:
 - No text, no letters, no words, no numbers in the image
 - No people's faces (headshots will be overlaid separately)
 - The image should evoke the MOOD and TOPIC of the campaign
+- IMPORTANT: The image must be BRIGHT, VIBRANT, and WELL-LIT — use natural daylight, golden hour, or bright blue skies. Avoid dark, moody, or dimly lit scenes
 - Include specific color palette guidance matching the brand tone
 - Specify "professional photograph" or "editorial illustration" style
-- Keep composition clean with space for text overlay (darker areas, gradients, or negative space)
+- Use vivid, saturated colors and high dynamic range
+- Keep composition clean with open space (sky, light areas) especially in the lower half where text will be overlaid
 - Output ONLY the prompt text, nothing else
 
 Brand tone mapping:
-- "professional" → clean, corporate, trustworthy, blue/gray tones
-- "premium" → luxurious, sophisticated, dark with gold/warm accents
-- "friendly" → warm, inviting, bright, natural light, warm tones
-- "direct" → bold, high contrast, modern, strong colors`,
+- "professional" → clean, bright, trustworthy, blue sky, crisp daylight
+- "premium" → luxurious, golden hour warmth, rich warm tones, bright and elegant
+- "friendly" → sunny, inviting, bright natural light, warm cheerful tones
+- "direct" → bold, vivid colors, high contrast, bright modern aesthetic`,
       },
       {
         role: "user",

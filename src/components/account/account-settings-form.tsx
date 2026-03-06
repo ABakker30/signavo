@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { COUNTRIES, LANGUAGES } from "@/lib/data/countries";
 
 interface AccountSettingsFormProps {
   initialData: {
@@ -21,6 +22,8 @@ interface AccountSettingsFormProps {
     licenseNumber: string;
     yearsInBusiness: string;
     tagline: string;
+    uiLanguage: string;
+    campaignLanguage: string;
   };
 }
 
@@ -55,6 +58,8 @@ export function AccountSettingsForm({ initialData }: AccountSettingsFormProps) {
   const [licenseNumber, setLicenseNumber] = useState(initialData.licenseNumber);
   const [yearsInBusiness, setYearsInBusiness] = useState(initialData.yearsInBusiness);
   const [tagline, setTagline] = useState(initialData.tagline);
+  const [uiLanguage, setUiLanguage] = useState(initialData.uiLanguage);
+  const [campaignLanguage, setCampaignLanguage] = useState(initialData.campaignLanguage);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -81,6 +86,8 @@ export function AccountSettingsForm({ initialData }: AccountSettingsFormProps) {
           licenseNumber: licenseNumber || null,
           yearsInBusiness: yearsInBusiness ? parseInt(yearsInBusiness) : null,
           tagline: tagline || null,
+          uiLanguage,
+          campaignLanguage,
         }),
       });
 
@@ -319,14 +326,18 @@ export function AccountSettingsForm({ initialData }: AccountSettingsFormProps) {
               <label htmlFor="country" className="block text-sm font-medium text-gray-700">
                 Country
               </label>
-              <input
+              <select
                 id="country"
-                type="text"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
-                placeholder="US"
-              />
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -369,6 +380,56 @@ export function AccountSettingsForm({ initialData }: AccountSettingsFormProps) {
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
               placeholder="5"
             />
+          </div>
+        </div>
+      </section>
+
+      <hr className="border-gray-200" />
+
+      {/* Language Preferences */}
+      <section>
+        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Language Preferences</h2>
+        <div className="mt-4 space-y-4">
+          <div>
+            <label htmlFor="uiLanguage" className="block text-sm font-medium text-gray-700">
+              Interface Language
+            </label>
+            <select
+              id="uiLanguage"
+              value={uiLanguage}
+              onChange={(e) => setUiLanguage(e.target.value)}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-gray-400">
+              The language the dashboard is displayed in.
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="campaignLanguage" className="block text-sm font-medium text-gray-700">
+              Default Campaign Language
+            </label>
+            <select
+              id="campaignLanguage"
+              value={campaignLanguage}
+              onChange={(e) => setCampaignLanguage(e.target.value)}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-gray-400">
+              The language your campaigns are generated in.
+            </p>
           </div>
         </div>
       </section>

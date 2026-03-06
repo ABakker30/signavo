@@ -38,6 +38,8 @@ export default async function SettingsPage() {
           licenseNumber: account?.license_number || "",
           yearsInBusiness: account?.years_in_business?.toString() || "",
           tagline: account?.tagline || "",
+          uiLanguage: account?.ui_language || "en",
+          campaignLanguage: account?.campaign_language || "en",
         }}
       />
     </div>

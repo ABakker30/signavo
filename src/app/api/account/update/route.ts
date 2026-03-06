@@ -31,6 +31,8 @@ export async function PATCH(request: NextRequest) {
     licenseNumber: "license_number",
     yearsInBusiness: "years_in_business",
     tagline: "tagline",
+    uiLanguage: "ui_language",
+    campaignLanguage: "campaign_language",
   };
 
   for (const [key, col] of Object.entries(fieldMap)) {

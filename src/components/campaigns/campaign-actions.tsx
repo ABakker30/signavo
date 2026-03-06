@@ -40,6 +40,30 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
     }
   }
 
+  async function handleDelete() {
+    if (!confirm("Are you sure you want to delete this campaign? This cannot be undone.")) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/campaigns/${campaignId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error?.message || "Delete failed");
+        return;
+      }
+
+      router.push("/dashboard/campaigns");
+    } catch {
+      setError("Network error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleRefine() {
     if (!refinePrompt.trim()) return;
     setLoading(true);
@@ -201,6 +225,14 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
         className="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
       >
         {loading ? "Publishing..." : "Publish Campaign"}
+      </button>
+
+      <button
+        onClick={handleDelete}
+        disabled={loading}
+        className="w-full rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+      >
+        Delete Campaign
       </button>
     </div>
   );

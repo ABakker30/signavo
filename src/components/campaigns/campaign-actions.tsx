@@ -14,11 +14,13 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
   const [loading, setLoading] = useState(false);
   const [rendering, setRendering] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [renderInfo, setRenderInfo] = useState<string | null>(null);
   const [refinePrompt, setRefinePrompt] = useState("");
 
   async function handleRender() {
     setRendering(true);
     setError(null);
+    setRenderInfo(null);
 
     try {
       const res = await fetch(`/api/campaigns/${campaignId}/render`, {
@@ -26,10 +28,16 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
         headers: { "Content-Type": "application/json" },
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         setError(data.error?.message || "Rendering failed");
         return;
+      }
+
+      const remaining = data.data?.rendersRemaining;
+      if (remaining !== undefined && remaining <= 10) {
+        setRenderInfo(`${remaining} render${remaining === 1 ? "" : "s"} remaining today`);
       }
 
       router.refresh();
@@ -160,6 +168,12 @@ export function CampaignActions({ campaignId, status, renderedSlides }: Campaign
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
+        </div>
+      )}
+
+      {renderInfo && (
+        <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          {renderInfo}
         </div>
       )}
 

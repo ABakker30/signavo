@@ -21,6 +21,33 @@ export async function POST(
   const { id } = await params;
   const admin = createAdminClient();
 
+  // Rate limit: 50 renders per day per account
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const { count: rendersToday } = await admin
+    .from("campaigns")
+    .select("id", { count: "exact", head: true })
+    .eq("account_id", context.account.id)
+    .not("rendered_slides", "is", null)
+    .gte("updated_at", todayStart.toISOString());
+
+  const DAILY_LIMIT = 50;
+  const used = rendersToday || 0;
+
+  if (used >= DAILY_LIMIT) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "RATE_LIMITED",
+          message: `Daily render limit reached (${DAILY_LIMIT}/day). Try again tomorrow.`,
+        },
+      },
+      { status: 429 }
+    );
+  }
+
   // Fetch campaign
   const { data: campaign, error: fetchError } = await admin
     .from("campaigns")
@@ -142,6 +169,7 @@ export async function POST(
         slides: imageUrls,
         count: imageUrls.length,
         backgroundPrompt: imagePrompt,
+        rendersRemaining: DAILY_LIMIT - used - 1,
       },
     });
   } catch (err) {
